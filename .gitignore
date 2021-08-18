@@ -1,2 +1,2 @@
-vence/
-src/.env
+venv/
+.env
