@@ -1,3 +1,4 @@
+from bson.objectid import ObjectId
 from flask import Flask, jsonify, request, Response
 from flask_pymongo import PyMongo
 from dotenv import load_dotenv
@@ -19,6 +20,52 @@ def homepage():
   return jsonify({
     "message": "my first API with flask"
   })
+
+@app.route('/projects', methods=['GET'])
+def get_all_projects():
+  projects = mongo.db.projects.find()
+  response = json_util.dumps(projects)
+
+  return Response(response, mimetype='application/json')
+  
+@app.route('/projects/<project_id>', methods=['GET'])
+def get_project(project_id):
+  project = mongo.db.projects.find({'_id': ObjectId(project_id)})
+  if project:
+    response = json_util.dumps(project)
+    return Response(response, mimetype='application/json')
+
+  return jsonify({
+    "message": "Project not found"
+  })
+
+@app.route('/project', methods=['POST'])
+@cross_origin()
+def add_project():
+    title = request.json['title']
+    images = request.json['images']
+    technologies = request.json['technologies']
+    link = request.json['link']
+    code = request.json['code']
+    colorBg = request.json['colorBg']
+    description = request.json['description']
+
+    if title and images and technologies and link and code and colorBg and description:
+        mongo.db.projects.insert({
+            'title': title,
+            'images': images,
+            'technologies': technologies,
+            'link': link,
+            'code': code,
+            'colorBg': colorBg,
+            'description': description
+        })
+        response = jsonify({'project': 'project added successfully!'})
+        response.status_code = 200
+        return response
+
+    return 'error'
+
 
 @app.route('/messages', methods=['GET'])
 def get_all_message():
@@ -49,7 +96,7 @@ def create_new_message():
 
     return response
 
-  return 'nana'
+  return 'message'
 
 # list all skills
 @app.route('/skills', methods=['GET'])
