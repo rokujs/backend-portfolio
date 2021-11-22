@@ -9,6 +9,7 @@ import os
 load_dotenv()
 
 app = Flask(__name__)
+cors = CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
 app.config['MONGO_URI'] = os.getenv('MONGO')
 
@@ -27,8 +28,9 @@ def get_all_projects():
   response = json_util.dumps(projects)
 
   return Response(response, mimetype='application/json')
-  
+
 @app.route('/projects/<project_id>', methods=['GET'])
+@cross_origin()
 def get_project(project_id):
   project = mongo.db.projects.find({'_id': ObjectId(project_id)})
   if project:
@@ -37,7 +39,7 @@ def get_project(project_id):
 
   return jsonify({
     "message": "Project not found"
-  })
+  }), 404
 
 @app.route('/project', methods=['POST'])
 @cross_origin()
